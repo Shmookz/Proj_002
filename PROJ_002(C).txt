@@ -1,0 +1,323 @@
+/*_____________________________________________________________________________________________________________________
+
+        Assignment:       
+        Module:         
+        Author:         
+        Date:           
+
+        Description:
+        This program will ....... 
+
+
+        Notes:          
+
+        Revisions:
+
+_____________________________________________________________________________________________________________________*/
+#include <compiler_defs.h>
+#include <C8051F120_defs.h>     // SFR declarations
+#include "assign2.h"
+
+//typedef struct {
+//  int time;
+//   }
+
+
+unsigned int state;
+/*--------------------------------------------------------------------------------------------------------------------
+        Function:         Main
+
+        Description:      Main routine
+
+        Revisions:
+
+--------------------------------------------------------------------------------------------------------------------*/
+void main(void)
+{
+	General_Init();
+	Timer_Init(0xF6,0x08);
+    Voltage_Reference_Init();
+	DAC_Init();
+    Interrupts_Init();
+	Delay();
+	
+	state = 0;
+
+    while (1)
+	{
+	  switch (state)
+	  {
+	  	case 0:
+			Play_state();
+
+		        //if(~MPB){
+  					
+					if(~MPB)
+					{
+						Delay();
+						
+							while(~MPB)
+								{
+									state = 0;
+								}
+							
+						state = 1;
+					}
+		break;				
+
+														/*	if(pushed)
+															{
+																delay(10mS)
+																if(pushed)
+																{
+																	while(pushed)
+																	do_something();
+																}
+															}  */
+                       
+			
+		case 1:
+			Volume_state();
+			   if(~MPB)
+			   {
+				   Delay();
+				   	
+				 	  while(~MPB)
+					  {
+				   	  	state = 1;
+ 				  	  }
+					 state = 0;
+				    
+		   	   }
+             break;
+		}
+	}
+	  	
+		// Do stuff here ??
+        
+		// Try this code out to test the pushbuttons and LEDs as defined in Assign2.h
+	
+}
+
+/*--------------------------------------------------------------------------------------------------------------------
+        Function:         General_Init
+
+        Description:      Initialise ports, watchdog....
+
+        Revisions:
+
+--------------------------------------------------------------------------------------------------------------------*/
+void General_Init()
+{
+	WDTCN = 0xde;
+	WDTCN = 0xad;
+    SFRPAGE = CONFIG_PAGE;
+	P2MDOUT = 0xff;		// Need to make pushpull outputs to drive LEDs properly
+
+	XBR2 = 0x40;
+}
+
+/*--------------------------------------------------------------------------------------------------------------------
+        Function:         Timer_Init
+
+        Description:      Initialise timer ports and registers
+
+        Revisions:
+
+--------------------------------------------------------------------------------------------------------------------*/
+void Timer_Init(int x, int y)
+{
+	SFRPAGE   = TMR2_PAGE;
+
+	TMR2CN    = 0x04;
+    TMR2CF    = 0x0A;
+    RCAP2L    = y;
+    RCAP2H    = x;
+	
+
+}
+
+/*--------------------------------------------------------------------------------------------------------------------
+        Function:         Voltage_Reference_Init
+
+        Description:      Initialise voltage references (Needed for DAC)
+
+        Revisions:
+
+--------------------------------------------------------------------------------------------------------------------*/
+void Voltage_Reference_Init()
+{
+	SFRPAGE   = ADC0_PAGE;
+    REF0CN    = 0x03; // Turn on internal bandgap reference and output buffer to get 2.4V reference (pg 107)
+}
+
+/*--------------------------------------------------------------------------------------------------------------------
+        Function:         DAC_Init
+
+        Description:      Initialise DAC0. 
+
+        Revisions:
+
+--------------------------------------------------------------------------------------------------------------------*/
+void DAC_Init()
+{
+    SFRPAGE   = DAC0_PAGE;
+    DAC0CN    = 0x80;
+
+}
+
+/*--------------------------------------------------------------------------------------------------------------------
+        Function:         Interrupts_Init
+
+        Description:      Initialise interrupts
+
+        Revisions:
+
+--------------------------------------------------------------------------------------------------------------------*/
+void Interrupts_Init()
+{
+	IE        = 0xA0;  // Global enable interrupt + timer 2 interrupt
+}
+
+void Play_state(void)
+{
+    	
+        
+		// Try this code out to test the pushbuttons and LEDs as defined in Assign2.h
+		LD1 = ~PB1;	// Note the ~ means "complement"
+		LD2 = ~PB2;
+		LD3 = ~PB3;
+		LD4 = ~PB4;
+		LD5 = ~PB5;
+		LD6 = ~PB6;
+		LD7 = ~PB7;
+		
+//------sharps w/ PB1---------------------------------------/
+	    if (~PB1 && ~PB2){
+
+		    Timer_Init(Cs_0.reloadH, 	Cs_0.reloadL);
+			TR2 = 1;
+        }else if (~PB1 && ~PB3){
+		    Timer_Init(Ds_0.reloadH, 	Ds_0.reloadL);
+			TR2 = 1;
+        }else if (~PB1 && ~PB4){
+		    Timer_Init(E_0.reloadH, 	E_0.reloadL);
+			TR2 = 1;
+        }else if (~PB1 && ~PB5){
+		   	Timer_Init(Fs_0.reloadH, 	Fs_0.reloadL);
+			TR2 = 1;
+        }else if (~PB1 && ~PB6){
+		    Timer_Init(Gs_0.reloadH,	Gs_0.reloadL);
+			TR2 = 1;
+        }else if (~PB1 && ~PB7){
+		    Timer_Init(As_0.reloadH, 	As_0.reloadL);
+			TR2 = 1;
+        }else if (~PB1 && ~PB8){
+		    Timer_Init(B_0.reloadH, 	B_0.reloadL);
+			TR2 = 1;
+
+//------naturals w/out PB1----------------------------------/
+
+        }else if (~PB2){
+    		Timer_Init(C_0.reloadH, 	C_0.reloadL);
+			TR2 = 1;
+		}else if (~PB3){
+    		Timer_Init(D_0.reloadH, 	D_0.reloadL);
+			TR2 = 1;
+		}else if (~PB4){
+		    Timer_Init(E_0.reloadH, 	E_0.reloadL);
+			TR2 = 1; 
+		}else if (~PB5){
+		    Timer_Init(F_0.reloadH, 	F_0.reloadL);
+			TR2 = 1;
+		}else if (~PB6){
+            Timer_Init(G_0.reloadH, 	G_0.reloadL);
+			TR2 = 1;
+		}else if (~PB7){
+            Timer_Init(A_0.reloadH, 	A_0.reloadL);
+			TR2 = 1;
+		}else if (~PB8){
+            Timer_Init(B_0.reloadH, 	B_0.reloadL);
+		    TR2 = 1;
+        }
+ 		else{
+			TR2 = 0;
+		}
+
+		
+		
+		if ((~MPB) || (~PB8))  // What does this do.....Note that MPB is the P3.7 push button on the 8051 board
+			LD8 = 1;
+
+            
+
+		else 
+			LD8 = 0;   
+	
+
+
+}
+
+void Volume_state(void)
+{
+    
+	
+	    if(~PB1)
+		   		
+			if(DAC0H<511){
+		
+		    DAC0H += 32;
+			DAC0L = 0;
+			}
+			
+		else if(~PB2)
+		    if(DAC0H>32){	
+	  			 
+	 		DAC0L -= 32;
+			DAC0H= 0; 
+		}
+      
+}
+
+void Delay(void)
+{
+	int i = 0;
+	for (i=1;i<200;i++) 
+	
+	return;	
+		
+}
+/*--------------------------------------------------------------------------------------------------------------------
+
+
+        Function:         Timer2_ISR
+
+        Description:      
+
+        Revisions:
+
+--------------------------------------------------------------------------------------------------------------------*/
+void Timer2_ISR (void) interrupt 5
+{
+  unsigned char SFRPAGE_SAVE = SFRPAGE;        // Save Current SFR page
+
+  SFRPAGE   = DAC0_PAGE;
+  if (DAC0L == 0){
+  	
+    DAC0L= 0xff;
+	DAC0H= 0xff; 
+  }
+  else {
+    DAC0L= 0;
+	DAC0H= 0; 
+  
+  }
+	
+	TF2 = 0;        // Reset Interrupt
+  SFRPAGE = SFRPAGE_SAVE; 							      // Restore SFR page
+}
+
+
+
+
+
